@@ -81,3 +81,6 @@
          (Tree.
           [(Leaf. "piyo")])])
  0)
+
+(comment
+  (clojure.core.typed/check-ns (ns-name *ns*)))
