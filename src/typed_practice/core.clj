@@ -24,3 +24,30 @@
 
 (t/ann g [Integer Integer -> Integer])
 (defn g [x y] (int (+ x y)))
+
+(t/ann count-words [(clojure.lang.Seqable String) -> t/AnyInteger])
+
+(defn count-words [coll]
+  (reduce (t/fn> [result :- t/AnyInteger
+                  c :- String]
+                 (+ result (count c)))
+          0 coll))
+
+(count-words ["aa" "aaa"])
+;; core.typedがなかったら下の例はしれっと動いてしまう
+;; 静的に型チェックをやって弾いてくれる
+;; (count-words ["aa" ["aaa"]])
+
+(t/ann count-words-in-docs [(clojure.lang.Seqable
+                             (clojure.lang.Seqable String))
+                            -> t/AnyInteger])
+
+(defn count-words-in-docs [coll]
+  (reduce (t/fn> [result :- t/AnyInteger
+                  c :- (clojure.lang.Seqable String)]
+                 (+ result (count-words c)))
+          0 coll))
+
+(count-words-in-docs [["a" "b"] ["b" "i"]])
+;; (count-words-in-docs [["a" "b"] [[[1 2 3]]]])
+
