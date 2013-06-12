@@ -51,3 +51,33 @@
 (count-words-in-docs [["a" "b"] ["b" "i"]])
 ;; (count-words-in-docs [["a" "b"] [[[1 2 3]]]])
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Recursive example
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(t/ann-datatype Leaf [text :- String])
+(deftype Leaf [text])
+
+(t/def-alias Node (U Leaf Tree))
+
+(t/ann-datatype Tree [children :- (clojure.lang.IPersistentVector Node)])
+(deftype Tree [children])
+
+(t/ann leaf? [Node -> boolean])
+(defn leaf? [t] (= Leaf (class t)))
+
+(t/ann count-children' [Node t/AnyInteger -> t/AnyInteger])
+
+(defn count-children' [^Tree tree cnt]
+  (if (leaf? tree)
+    (inc cnt)
+    (->> (.children tree)
+         (map (t/fn> [c :- Node] (count-children' c 0)))
+         (reduce +))))
+
+(count-children'
+ (Tree. [(Leaf. "hoge")
+         (Leaf. "fuga")
+         (Tree.
+          [(Leaf. "piyo")])])
+ 0)
